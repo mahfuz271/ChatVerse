@@ -1,8 +1,18 @@
 package chatverse;
 
+import java.awt.Dimension;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
+import java.sql.SQLException;
+import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
+import java.sql.*;
+
 public class chat extends javax.swing.JFrame {
 
     String username = null;
+    Connection conn = null;
+    DefaultListModel model = new DefaultListModel();
 
     /**
      * Creates new form chat
@@ -11,11 +21,23 @@ public class chat extends javax.swing.JFrame {
      */
     public chat(String user) {
         username = user;
-        initComponents();
-    }
+        conn = DB.ConnectDb();
 
-    public chat() {
+        String sql = "select * from user";
+        try {
+            ResultSet rec = conn.prepareStatement(sql).executeQuery();;
+            while ((rec != null) && (rec.next())) {
+                model.addElement(rec.getString("username"));
+            }
+        } catch (HeadlessException | SQLException e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
+
         initComponents();
+        Toolkit toolkit = getToolkit();
+        Dimension size = toolkit.getScreenSize();
+        setLocation(size.width / 2 - getWidth() / 2,
+                size.height / 2 - getHeight() / 2);
     }
 
     /**
@@ -28,6 +50,8 @@ public class chat extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel5 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
 
         jLabel5.setText("ID: 221015038");
 
@@ -36,15 +60,25 @@ public class chat extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(850, 550));
         setPreferredSize(new java.awt.Dimension(850, 550));
 
+        jList1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jList1.setFont(new java.awt.Font("Segoe UI", 2, 24)); // NOI18N
+        jList1.setModel(model);
+        jList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane1.setViewportView(jList1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 870, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 702, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 552, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 52, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -85,5 +119,7 @@ public class chat extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JList<String> jList1;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }
