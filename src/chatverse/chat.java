@@ -20,6 +20,7 @@ public class chat extends javax.swing.JFrame {
     DefaultListModel messages = new DefaultListModel();
     DefaultListModel users = new DefaultListModel();
     String sendTo = null;
+    private int selectedIndex = -1;
 
     /**
      * Creates new form chat
@@ -42,7 +43,7 @@ public class chat extends javax.swing.JFrame {
 
         initComponents();
         displaywhenSender();
-
+        startChat();
         Toolkit toolkit = getToolkit();
         Dimension size = toolkit.getScreenSize();
 
@@ -55,10 +56,14 @@ public class chat extends javax.swing.JFrame {
         if (sendTo != null) {
             chatname.setText("You are chatting with: " + sendTo);
             chatname.setVisible(true);
-            chatArea.setVisible(true);
+            //chatArea.setVisible(true);
+            jButton3.setVisible(true);
+            msg.setVisible(true);
         } else {
             chatname.setVisible(false);
-            chatArea.setVisible(false);
+            //chatArea.setVisible(false);
+            jButton3.setVisible(false);
+            msg.setVisible(false);
         }
     }
 
@@ -93,6 +98,11 @@ public class chat extends javax.swing.JFrame {
             }
             if (chatlist.size() < 1) {
                 chatlist.addElement("No Chat Found.");
+            } else {
+                // Restore selected index
+                if (selectedIndex >= 0 && selectedIndex < chatlist.size()) {
+                    jList1.setSelectedIndex(selectedIndex);
+                }
             }
         } catch (HeadlessException | SQLException e2) {
             JOptionPane.showMessageDialog(null, e2);
@@ -116,7 +126,14 @@ public class chat extends javax.swing.JFrame {
                     }
                 }
                 if (messages.size() < 1) {
-                    messages.addElement("Empty Chat.");
+                    messages.addElement("New Chat.");
+                } else {
+
+                    // Auto-scroll down to the latest item
+                    int lastIndex = messages.size() - 1;
+                    if (lastIndex >= 0) {
+                        chatArea.ensureIndexIsVisible(lastIndex);
+                    }
                 }
             } catch (HeadlessException | SQLException e2) {
                 JOptionPane.showMessageDialog(null, e2);
@@ -203,8 +220,10 @@ public class chat extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(850, 550));
 
+        jList1.setBackground(new java.awt.Color(0, 122, 255));
         jList1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jList1.setFont(new java.awt.Font("Segoe UI", 2, 24)); // NOI18N
+        jList1.setForeground(new java.awt.Color(255, 255, 255));
         jList1.setModel(chatlist);
         jList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jList1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -214,7 +233,7 @@ public class chat extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jList1);
 
-        jButton1.setBackground(new java.awt.Color(63, 61, 86));
+        jButton1.setBackground(new java.awt.Color(0, 122, 255));
         jButton1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("New Chat");
@@ -242,6 +261,8 @@ public class chat extends javax.swing.JFrame {
             }
         });
 
+        chatArea.setBackground(new java.awt.Color(248, 249, 251));
+        chatArea.setBorder(null);
         chatArea.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         chatArea.setModel(messages);
         chatArea.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -249,9 +270,13 @@ public class chat extends javax.swing.JFrame {
 
         chatname.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
+        msg.setBackground(new java.awt.Color(235, 235, 235));
         msg.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        msg.setForeground(new java.awt.Color(255, 255, 255));
 
+        jButton3.setBackground(new java.awt.Color(0, 122, 255));
         jButton3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jButton3.setForeground(new java.awt.Color(255, 255, 255));
         jButton3.setText("SEND");
         jButton3.setToolTipText("");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -267,9 +292,13 @@ public class chat extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
+                        .addContainerGap()
                         .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 582, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(chatname)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, 0)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -277,19 +306,16 @@ public class chat extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton2))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE))
-                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane3)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(chatname)
-                                .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(msg)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton3)))))
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton3))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 699, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -297,24 +323,28 @@ public class chat extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButton2)
                         .addComponent(jLabel8))
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(chatname, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 475, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(4, 4, 4)
+                        .addComponent(chatname, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(15, 15, 15))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 475, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton3)
                             .addComponent(msg, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(3, 3, 3)
                         .addComponent(jLabel7)
                         .addContainerGap())))
         );
@@ -327,6 +357,7 @@ public class chat extends javax.swing.JFrame {
         if ("No Chat Found.".equals(selected)) {
             sendTo = null;
         } else {
+            selectedIndex = jList1.getSelectedIndex();
             sendTo = selected;
         }
         startChat();
@@ -334,6 +365,7 @@ public class chat extends javax.swing.JFrame {
 
     private void startChat() {
         messages.clear();
+        messages.addElement("Realtime Chat Application.");
         displaywhenSender();
         loadmessages();
     }
