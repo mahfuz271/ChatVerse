@@ -236,12 +236,19 @@ public class Account extends javax.swing.JFrame {
     private void cmd_registerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmd_registerActionPerformed
         String sql = "select * from user where username=?";
         try {
+            boolean allok = true;
             pst = conn.prepareStatement(sql);
             pst.setString(1, txt_username.getText());
             rs = pst.executeQuery();
             if (rs.next()) {
                 JOptionPane.showMessageDialog(null, "Invalid UserName");
-            } else {
+                allok = false;
+            }else if("".equals(txt_username.getText()) || "".equals(txt_password.getText())){
+                JOptionPane.showMessageDialog(null, "Please Fill The form");
+                allok = false;
+            }
+            
+            if(allok){
                 String sql2 = "insert into user(username, password) values(?,?)";
                 pst = conn.prepareStatement(sql2);
                 pst.setString(1, txt_username.getText());
