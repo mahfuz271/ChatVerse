@@ -71,22 +71,23 @@ INSERT INTO `chat` (`id`, `user1`, `user2`, `text`, `first_msg`) VALUES
 CREATE TABLE `user` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL
+  `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
+-- Demo accounts. Password is SHA-256('1234'). See README for credentials.
 --
 
 INSERT INTO `user` (`id`, `username`, `password`) VALUES
-(4, 'mahfuz', '1234'),
-(5, 'rahim', '1234'),
-(6, 'sohag', '1234'),
-(7, 'joy', '1234'),
-(8, 'user1', '1234'),
-(9, 'user2', '1234'),
-(10, 'user3', '1234'),
-(11, 'user4', '1234');
+(4, 'mahfuz', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'),
+(5, 'rahim',  '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'),
+(6, 'sohag',  '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'),
+(7, 'joy',    '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'),
+(8, 'user1',  '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'),
+(9, 'user2',  '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'),
+(10,'user3',  '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'),
+(11,'user4',  '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4');
 
 --
 -- Indexes for dumped tables

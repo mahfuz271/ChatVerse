@@ -1,11 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package chatverse;
 
 import java.awt.*;
-import java.sql.*;
+import java.io.*;
 import javax.swing.*;
 
 /**
@@ -14,16 +10,23 @@ import javax.swing.*;
  */
 public class Account extends javax.swing.JFrame {
 
-    Connection conn = null;
-    ResultSet rs = null;
-    PreparedStatement pst = null;
+    DataInputStream input;
+    DataOutputStream output;
 
     /**
      * Creates new form Account
      */
     public Account() {
         initComponents();
-        conn = DB.ConnectDb();
+
+        try {
+            // Initialize connection
+            ConnectionManager.initializeConnection("localhost", 4501);
+            input = ConnectionManager.getInput();
+            output = ConnectionManager.getOutput();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Failed to connect to server: " + e.getMessage());
+        }
         Toolkit toolkit = getToolkit();
         Dimension size = toolkit.getScreenSize();
         setLocation(size.width / 2 - getWidth() / 2,
@@ -66,9 +69,7 @@ public class Account extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(58, 60, 98));
-        setMaximumSize(new java.awt.Dimension(500, 600));
         setMinimumSize(new java.awt.Dimension(500, 600));
-        setPreferredSize(new java.awt.Dimension(500, 600));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -198,8 +199,6 @@ public class Account extends javax.swing.JFrame {
 
         txt_username.getAccessibleContext().setAccessibleName("");
 
-        jLabel5.setText("ID: 221015038");
-
         jLabel6.setFont(new java.awt.Font("Trajan Pro", 1, 18)); // NOI18N
         jLabel6.setText("ChatVerse");
 
@@ -227,60 +226,67 @@ public class Account extends javax.swing.JFrame {
                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE)
                 .addComponent(jLabel5)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmd_registerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmd_registerActionPerformed
-        String sql = "select * from user where username=?";
         try {
-            boolean allok = true;
-            pst = conn.prepareStatement(sql);
-            pst.setString(1, txt_username.getText());
-            rs = pst.executeQuery();
-            if (rs.next()) {
-                JOptionPane.showMessageDialog(null, "Invalid UserName");
-                allok = false;
-            }else if("".equals(txt_username.getText()) || "".equals(txt_password.getText())){
-                JOptionPane.showMessageDialog(null, "Please Fill The form");
-                allok = false;
+            String username = txt_username.getText();
+            String password = new String(txt_password.getPassword());
+
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill all fields");
+                return;
             }
-            
-            if(allok){
-                String sql2 = "insert into user(username, password) values(?,?)";
-                pst = conn.prepareStatement(sql2);
-                pst.setString(1, txt_username.getText());
-                pst.setString(2, txt_password.getText());
-                pst.executeUpdate();
-                JOptionPane.showMessageDialog(null, "Successfully saved. You can login now :) ");
+
+            // Send registration request to server
+            output.writeUTF("register");
+            output.writeUTF(username);
+            output.writeUTF(password);
+
+            // Read server response
+            String response = input.readUTF();
+            JOptionPane.showMessageDialog(this, response);
+
+            if (response.contains("success")) {
                 txt_username.setText("");
                 txt_password.setText("");
             }
-        } catch (HeadlessException | SQLException e) {
-            JOptionPane.showMessageDialog(null, e);
+        } catch (HeadlessException | IOException e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
     }//GEN-LAST:event_cmd_registerActionPerformed
 
     private void cmd_loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmd_loginActionPerformed
-        // TODO add your handling code here:
-        String sql = "select * from user where username=? and password=?";
         try {
             String username = txt_username.getText();
-            pst = conn.prepareStatement(sql);
-            pst.setString(1, username);
-            pst.setString(2, txt_password.getText());
-            rs = pst.executeQuery();
-            if (rs.next()) {
+            String password = new String(txt_password.getPassword());
+
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill all fields");
+                return;
+            }
+
+            // Send login request to server
+            output.writeUTF("login");
+            output.writeUTF(username);
+            output.writeUTF(password);
+
+            // Read server response
+            String response = input.readUTF();
+            if (response.equals("success")) {
+                JOptionPane.showMessageDialog(this, "Login successful");
                 chat s = new chat(username);
                 s.setVisible(true);
-                dispose();
+                this.dispose();
             } else {
-                JOptionPane.showMessageDialog(null, "Please try again");
+                JOptionPane.showMessageDialog(this, "Invalid username or password");
             }
-        } catch (HeadlessException | SQLException e) {
-            JOptionPane.showMessageDialog(null, e);
+        } catch (HeadlessException | IOException e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
     }//GEN-LAST:event_cmd_loginActionPerformed
 

@@ -85,9 +85,12 @@ public class chat extends javax.swing.JFrame {
         }
 
         //chat list load
-        sql = "select * from chat where (user1='" + username + "' or user2='" + username + "') and first_msg = 1";
+        sql = "select * from chat where (user1=? or user2=?) and first_msg = 1";
         try {
-            ResultSet rec = conn.prepareStatement(sql).executeQuery();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, username);
+            ps.setString(2, username);
+            ResultSet rec = ps.executeQuery();
             chatlist.clear();
             while ((rec != null) && (rec.next())) {
                 if (rec.getString("user2").equals(username)) {
@@ -114,9 +117,14 @@ public class chat extends javax.swing.JFrame {
         //messages load
         if (sendTo != null) {
             displaywhenSender();
-            String sql = "select * from chat where ((user1='" + sendTo + "' and user2='" + username + "') or (user1='" + username + "' and user2='" + sendTo + "')) order by id asc";
+            String sql = "select * from chat where ((user1=? and user2=?) or (user1=? and user2=?)) order by id asc";
             try {
-                ResultSet rec = conn.prepareStatement(sql).executeQuery();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setString(1, sendTo);
+                ps.setString(2, username);
+                ps.setString(3, username);
+                ps.setString(4, sendTo);
+                ResultSet rec = ps.executeQuery();
                 messages.clear();
                 while ((rec != null) && (rec.next())) {
                     if (rec.getString("user1").equals(username)) {
@@ -169,7 +177,7 @@ public class chat extends javax.swing.JFrame {
         msg = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
 
-        jLabel5.setText("ID: 221015038");
+        jLabel5.setText("");
 
         jDialog1.setMinimumSize(new java.awt.Dimension(258, 536));
 
@@ -246,7 +254,7 @@ public class chat extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Trajan Pro", 1, 18)); // NOI18N
         jLabel6.setText("ChatVerse");
 
-        jLabel7.setText("ID: 221015038");
+        jLabel7.setText("");
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel8.setText("Welcome, "+username);
@@ -390,11 +398,15 @@ public class chat extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
 
-        String sql = "select * from chat where ((user1='" + sendTo + "' and user2='" + username + "') or (user1='" + username + "' and user2='" + sendTo + "')) and first_msg = 1";
+        String sql = "select * from chat where ((user1=? and user2=?) or (user1=? and user2=?)) and first_msg = 1";
         try {
             String first = "1";
             boolean allok = true;
             pst = conn.prepareStatement(sql);
+            pst.setString(1, sendTo);
+            pst.setString(2, username);
+            pst.setString(3, username);
+            pst.setString(4, sendTo);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
                 first = "0";

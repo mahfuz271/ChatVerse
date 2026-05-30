@@ -4,7 +4,7 @@
   <NonVisualComponents>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
-        <Property name="text" type="java.lang.String" value="ID: 221015038"/>
+        <Property name="text" type="java.lang.String" value=""/>
       </Properties>
     </Component>
     <Container class="javax.swing.JDialog" name="jDialog1">
@@ -263,7 +263,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
-        <Property name="text" type="java.lang.String" value="ID: 221015038"/>
+        <Property name="text" type="java.lang.String" value=""/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel8">
